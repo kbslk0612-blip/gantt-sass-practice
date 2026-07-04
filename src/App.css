@@ -133,8 +133,7 @@ h1 {
 .gantt-header,
 .gantt-row {
   display: grid;
-  grid-template-columns: 160px repeat(12, 80px);
-  min-width: 1120px;
+  grid-template-columns: 160px repeat(var(--date-count), 80px);
 }
 
 .gantt-header {
@@ -156,7 +155,7 @@ h1 {
 
 .gantt-timeline {
   display: grid;
-  grid-template-columns: repeat(12, 80px);
+  grid-template-columns: repeat(var(--date-count), 80px);
   grid-column: 2 / -1;
   align-items: center;
   padding: 10px 0;

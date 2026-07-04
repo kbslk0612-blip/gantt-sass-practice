@@ -28,45 +28,54 @@ const initialTasks = [
   },
 ]
 
-const chartDates = [
-  '2026-07-04',
-  '2026-07-05',
-  '2026-07-06',
-  '2026-07-07',
-  '2026-07-08',
-  '2026-07-09',
-  '2026-07-10',
-  '2026-07-11',
-  '2026-07-12',
-  '2026-07-13',
-  '2026-07-14',
-  '2026-07-15',
-]
+function formatDate(date) {
+  return date.toISOString().slice(0, 10)
+}
 
-function getDateIndex(date) {
+function createDateRange(tasks) {
+  if (tasks.length === 0) {
+    return []
+  }
+
+  const startDates = tasks.map((task) => new Date(task.startDate))
+  const endDates = tasks.map((task) => new Date(task.endDate))
+
+  const minDate = new Date(Math.min(...startDates))
+  const maxDate = new Date(Math.max(...endDates))
+
+  const dates = []
+  const currentDate = new Date(minDate)
+
+  while (currentDate <= maxDate) {
+    dates.push(formatDate(currentDate))
+    currentDate.setDate(currentDate.getDate() + 1)
+  }
+
+  return dates
+}
+
+function getDateIndex(date, chartDates) {
   return chartDates.indexOf(date) + 1
 }
 
-function getTaskDuration(task) {
-  const startIndex = getDateIndex(task.startDate)
-  const endIndex = getDateIndex(task.endDate)
+function getTaskDuration(task, chartDates) {
+  const startIndex = getDateIndex(task.startDate, chartDates)
+  const endIndex = getDateIndex(task.endDate, chartDates)
 
   return endIndex - startIndex + 1
 }
 
 function App() {
   const [tasks, setTasks] = useState(() => {
-  const savedTasks = localStorage.getItem('ganttTasks')
+    const savedTasks = localStorage.getItem('ganttTasks')
 
-  if (savedTasks) {
-    return JSON.parse(savedTasks)
-  }
+    if (savedTasks) {
+      return JSON.parse(savedTasks)
+    }
 
-  return initialTasks
-})
-useEffect(() => {
-  localStorage.setItem('ganttTasks', JSON.stringify(tasks))
-}, [tasks])
+    return initialTasks
+  })
+
   const [form, setForm] = useState({
     title: '',
     owner: '',
@@ -74,6 +83,12 @@ useEffect(() => {
     endDate: '',
     status: '예정',
   })
+
+  const chartDates = createDateRange(tasks)
+
+  useEffect(() => {
+    localStorage.setItem('ganttTasks', JSON.stringify(tasks))
+  }, [tasks])
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -85,13 +100,15 @@ useEffect(() => {
   }
 
   function handleSubmit(event) {
-    function handleDelete(taskId) {
-  setTasks(tasks.filter((task) => task.id !== taskId))
-}
     event.preventDefault()
 
     if (!form.title || !form.owner || !form.startDate || !form.endDate) {
       alert('작업명, 담당자, 시작일, 종료일을 모두 입력해주세요.')
+      return
+    }
+
+    if (new Date(form.startDate) > new Date(form.endDate)) {
+      alert('종료일은 시작일보다 늦거나 같아야 합니다.')
       return
     }
 
@@ -109,6 +126,10 @@ useEffect(() => {
       endDate: '',
       status: '예정',
     })
+  }
+
+  function handleDelete(taskId) {
+    setTasks(tasks.filter((task) => task.id !== taskId))
   }
 
   return (
@@ -194,16 +215,17 @@ useEffect(() => {
               </div>
 
               <span className="status">{task.status}</span>
+
               <button className="delete-button" onClick={() => handleDelete(task.id)}>
-  삭제
-</button>
+                삭제
+              </button>
             </article>
           ))}
         </div>
 
         <h2>간트차트</h2>
 
-        <div className="gantt-chart">
+        <div className="gantt-chart" style={{ '--date-count': chartDates.length }}>
           <div className="gantt-header">
             <div className="gantt-task-name">작업</div>
 
@@ -215,8 +237,8 @@ useEffect(() => {
           </div>
 
           {tasks.map((task) => {
-            const startIndex = getDateIndex(task.startDate)
-            const duration = getTaskDuration(task)
+            const startIndex = getDateIndex(task.startDate, chartDates)
+            const duration = getTaskDuration(task, chartDates)
 
             return (
               <div className="gantt-row" key={task.id}>
