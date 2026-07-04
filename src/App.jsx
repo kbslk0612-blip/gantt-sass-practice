@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import './App.css'
 
-const sampleTasks = [
+const initialTasks = [
   {
     id: 1,
     title: '기획 정리',
@@ -28,6 +29,48 @@ const sampleTasks = [
 ]
 
 function App() {
+  const [tasks, setTasks] = useState(initialTasks)
+  const [form, setForm] = useState({
+    title: '',
+    owner: '',
+    startDate: '',
+    endDate: '',
+    status: '예정',
+  })
+
+  function handleChange(event) {
+    const { name, value } = event.target
+
+    setForm({
+      ...form,
+      [name]: value,
+    })
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
+
+    if (!form.title || !form.owner || !form.startDate || !form.endDate) {
+      alert('작업명, 담당자, 시작일, 종료일을 모두 입력해주세요.')
+      return
+    }
+
+    const newTask = {
+      id: Date.now(),
+      ...form,
+    }
+
+    setTasks([...tasks, newTask])
+
+    setForm({
+      title: '',
+      owner: '',
+      startDate: '',
+      endDate: '',
+      status: '예정',
+    })
+  }
+
   return (
     <main className="app">
       <section className="hero">
@@ -39,10 +82,65 @@ function App() {
       </section>
 
       <section className="task-section">
-        <h2>샘플 작업 목록</h2>
+        <h2>작업 추가</h2>
+
+        <form className="task-form" onSubmit={handleSubmit}>
+          <label>
+            작업명
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="예: 디자인 검토"
+            />
+          </label>
+
+          <label>
+            담당자
+            <input
+              name="owner"
+              value={form.owner}
+              onChange={handleChange}
+              placeholder="예: 범수"
+            />
+          </label>
+
+          <label>
+            시작일
+            <input
+              type="date"
+              name="startDate"
+              value={form.startDate}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label>
+            종료일
+            <input
+              type="date"
+              name="endDate"
+              value={form.endDate}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label>
+            상태
+            <select name="status" value={form.status} onChange={handleChange}>
+              <option value="예정">예정</option>
+              <option value="진행중">진행중</option>
+              <option value="완료">완료</option>
+            </select>
+          </label>
+
+          <button type="submit">작업 추가</button>
+        </form>
+
+        <h2>작업 목록</h2>
 
         <div className="task-list">
-          {sampleTasks.map((task) => (
+          {tasks.map((task) => (
             <article className="task-card" key={task.id}>
               <div>
                 <h3>{task.title}</h3>
