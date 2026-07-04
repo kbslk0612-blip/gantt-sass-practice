@@ -65,7 +65,17 @@ function getTaskDuration(task, chartDates) {
   return endIndex - startIndex + 1
 }
 
-function App() {
+function App() {function getStatusClass(status) {
+  if (status === '진행중') {
+    return 'in-progress'
+  }
+
+  if (status === '완료') {
+    return 'done'
+  }
+
+  return 'todo'
+}
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('ganttTasks')
 
@@ -214,7 +224,7 @@ function App() {
                 <span>{task.endDate}</span>
               </div>
 
-              <span className="status">{task.status}</span>
+              <span className={`status ${getStatusClass(task.status)}`}>{task.status}</span>
 
               <button className="delete-button" onClick={() => handleDelete(task.id)}>
                 삭제
@@ -246,7 +256,7 @@ function App() {
 
                 <div className="gantt-timeline">
                   <div
-                    className="gantt-bar"
+                    className={`gantt-bar ${getStatusClass(task.status)}`}
                     style={{
                       gridColumn: `${startIndex} / span ${duration}`,
                     }}
