@@ -123,4 +123,53 @@ h1 {
   .task-card {
     grid-template-columns: 1fr;
   }
+}.gantt-chart {
+  overflow-x: auto;
+  margin-top: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+}
+
+.gantt-header,
+.gantt-row {
+  display: grid;
+  grid-template-columns: 160px repeat(12, 80px);
+  min-width: 1120px;
+}
+
+.gantt-header {
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gantt-task-name,
+.gantt-date {
+  padding: 14px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.gantt-row {
+  border-top: 1px solid #e5e7eb;
+}
+
+.gantt-timeline {
+  display: grid;
+  grid-template-columns: repeat(12, 80px);
+  grid-column: 2 / -1;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.gantt-bar {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
 }

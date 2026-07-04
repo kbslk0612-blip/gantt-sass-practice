@@ -28,6 +28,32 @@ const initialTasks = [
   },
 ]
 
+const chartDates = [
+  '2026-07-04',
+  '2026-07-05',
+  '2026-07-06',
+  '2026-07-07',
+  '2026-07-08',
+  '2026-07-09',
+  '2026-07-10',
+  '2026-07-11',
+  '2026-07-12',
+  '2026-07-13',
+  '2026-07-14',
+  '2026-07-15',
+]
+
+function getDateIndex(date) {
+  return chartDates.indexOf(date) + 1
+}
+
+function getTaskDuration(task) {
+  const startIndex = getDateIndex(task.startDate)
+  const endIndex = getDateIndex(task.endDate)
+
+  return endIndex - startIndex + 1
+}
+
 function App() {
   const [tasks, setTasks] = useState(initialTasks)
   const [form, setForm] = useState({
@@ -156,6 +182,42 @@ function App() {
               <span className="status">{task.status}</span>
             </article>
           ))}
+        </div>
+
+        <h2>간트차트</h2>
+
+        <div className="gantt-chart">
+          <div className="gantt-header">
+            <div className="gantt-task-name">작업</div>
+
+            {chartDates.map((date) => (
+              <div className="gantt-date" key={date}>
+                {date.slice(5)}
+              </div>
+            ))}
+          </div>
+
+          {tasks.map((task) => {
+            const startIndex = getDateIndex(task.startDate)
+            const duration = getTaskDuration(task)
+
+            return (
+              <div className="gantt-row" key={task.id}>
+                <div className="gantt-task-name">{task.title}</div>
+
+                <div className="gantt-timeline">
+                  <div
+                    className="gantt-bar"
+                    style={{
+                      gridColumn: `${startIndex} / span ${duration}`,
+                    }}
+                  >
+                    {task.status}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </section>
     </main>
