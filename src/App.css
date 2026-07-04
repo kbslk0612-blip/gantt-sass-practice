@@ -206,4 +206,19 @@ h1 {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}.form-actions {
+  display: grid;
+  gap: 8px;
+  align-self: end;
+}
+
+.cancel-button {
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
 }

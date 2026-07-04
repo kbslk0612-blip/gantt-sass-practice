@@ -150,7 +150,7 @@ setForm({
 
   function handleDelete(taskId) {
     setTasks(tasks.filter((task) => task.id !== taskId))
-  }function handleEdit(task) {
+    function handleEdit(task) {
   setEditingTaskId(task.id)
 
   setForm({
@@ -160,6 +160,39 @@ setForm({
     endDate: task.endDate,
     status: task.status,
   })
+}
+
+  }function handleEdit(task) { function handleCancelEdit() {
+  setEditingTaskId(null)
+
+  setForm({
+    title: '',
+    owner: '',
+    startDate: '',
+    endDate: '',
+    status: '예정',
+  })
+}
+  setEditingTaskId(task.id)
+
+  setForm({
+    title: task.title,
+    owner: task.owner,
+    startDate: task.startDate,
+    endDate: task.endDate,
+    status: task.status,
+  })
+  function handleCancelEdit() {
+  setEditingTaskId(null)
+
+  setForm({
+    title: '',
+    owner: '',
+    startDate: '',
+    endDate: '',
+    status: '예정',
+  })
+}
 }
 
   return (
@@ -225,7 +258,28 @@ setForm({
             </select>
           </label>
 
-        <button type="submit">{editingTaskId ? '작업 수정' : '작업 추가'}</button>
+        <div className="form-actions">
+  <button type="submit">{editingTaskId ? '작업 수정' : '작업 추가'}</button>
+
+  {editingTaskId && (
+  <button
+  type="button"
+  className="cancel-button"
+  onClick={() => {
+    setEditingTaskId(null)
+    setForm({
+      title: '',
+      owner: '',
+      startDate: '',
+      endDate: '',
+      status: '예정',
+    })
+  }}
+>
+  수정 취소
+</button>
+  )}
+</div>
         </form>
 
         <h2>작업 목록</h2>
