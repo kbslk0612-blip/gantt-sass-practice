@@ -1,16 +1,28 @@
-# React + Vite
+# Gantt SaaS Practice
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React와 Vite로 만든 연습용 간트차트 MVP입니다.
 
-Currently, two official plugins are available:
+프로젝트 작업, 담당자, 시작일, 종료일, 상태를 입력하고 간단한 간트차트 형태로 확인할 수 있습니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 주요 기능
 
-## React Compiler
+- 작업 추가
+- 작업 삭제
+- 작업 목록 확인
+- 간트차트 형태로 일정 시각화
+- localStorage를 이용한 브라우저 저장
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 사용 기술
 
-## Expanding the Oxlint configuration
+- React
+- Vite
+- JavaScript
+- CSS
+- Git / GitHub
+- localStorage
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 실행 방법
+
+```bash
+npm install
+npm run dev
