@@ -93,7 +93,7 @@ function App() {function getStatusClass(status) {
     endDate: '',
     status: '예정',
   })
-
+const [editingTaskId, setEditingTaskId] = useState(null)
   const chartDates = createDateRange(tasks)
 
   useEffect(() => {
@@ -122,25 +122,45 @@ function App() {function getStatusClass(status) {
       return
     }
 
-    const newTask = {
-      id: Date.now(),
-      ...form,
-    }
+   if (editingTaskId) {
+  setTasks(
+    tasks.map((task) =>
+      task.id === editingTaskId ? { ...task, ...form } : task
+    )
+  )
 
-    setTasks([...tasks, newTask])
+  setEditingTaskId(null)
+} else {
+  const newTask = {
+    id: Date.now(),
+    ...form,
+  }
 
-    setForm({
-      title: '',
-      owner: '',
-      startDate: '',
-      endDate: '',
-      status: '예정',
-    })
+  setTasks([...tasks, newTask])
+}
+
+setForm({
+  title: '',
+  owner: '',
+  startDate: '',
+  endDate: '',
+  status: '예정',
+})
   }
 
   function handleDelete(taskId) {
     setTasks(tasks.filter((task) => task.id !== taskId))
-  }
+  }function handleEdit(task) {
+  setEditingTaskId(task.id)
+
+  setForm({
+    title: task.title,
+    owner: task.owner,
+    startDate: task.startDate,
+    endDate: task.endDate,
+    status: task.status,
+  })
+}
 
   return (
     <main className="app">
@@ -205,7 +225,7 @@ function App() {function getStatusClass(status) {
             </select>
           </label>
 
-          <button type="submit">작업 추가</button>
+        <button type="submit">{editingTaskId ? '작업 수정' : '작업 추가'}</button>
         </form>
 
         <h2>작업 목록</h2>
@@ -225,7 +245,9 @@ function App() {function getStatusClass(status) {
               </div>
 
               <span className={`status ${getStatusClass(task.status)}`}>{task.status}</span>
-
+<button className="edit-button" onClick={() => handleEdit(task)}>
+  수정
+</button>
               <button className="delete-button" onClick={() => handleDelete(task.id)}>
                 삭제
               </button>
