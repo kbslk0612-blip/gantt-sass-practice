@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const initialTasks = [
@@ -55,7 +55,18 @@ function getTaskDuration(task) {
 }
 
 function App() {
-  const [tasks, setTasks] = useState(initialTasks)
+  const [tasks, setTasks] = useState(() => {
+  const savedTasks = localStorage.getItem('ganttTasks')
+
+  if (savedTasks) {
+    return JSON.parse(savedTasks)
+  }
+
+  return initialTasks
+})
+useEffect(() => {
+  localStorage.setItem('ganttTasks', JSON.stringify(tasks))
+}, [tasks])
   const [form, setForm] = useState({
     title: '',
     owner: '',
