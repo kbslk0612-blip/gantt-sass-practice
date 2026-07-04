@@ -74,6 +74,9 @@ function App() {
   }
 
   function handleSubmit(event) {
+    function handleDelete(taskId) {
+  setTasks(tasks.filter((task) => task.id !== taskId))
+}
     event.preventDefault()
 
     if (!form.title || !form.owner || !form.startDate || !form.endDate) {
@@ -180,6 +183,9 @@ function App() {
               </div>
 
               <span className="status">{task.status}</span>
+              <button className="delete-button" onClick={() => handleDelete(task.id)}>
+  삭제
+</button>
             </article>
           ))}
         </div>
