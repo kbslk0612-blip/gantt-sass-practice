@@ -98,10 +98,14 @@ function App() {
 
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [statusFilter, setStatusFilter] = useState('전체')
-const filteredTasks =
-  statusFilter === '전체'
-    ? tasks
-    : tasks.filter((task) => task.status === statusFilter)
+  const [searchText, setSearchText] = useState('')
+const filteredTasks = tasks.filter((task) => {
+  const matchesStatus = statusFilter === '전체' || task.status === statusFilter
+  const matchesSearch =
+    task.title.includes(searchText) || task.owner.includes(searchText)
+
+  return matchesStatus && matchesSearch
+})
  const chartDates = createDateRange(filteredTasks)
 
 const totalTaskCount = tasks.length
@@ -133,37 +137,37 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
   }
 
   function handleSubmit(event) {
-    event.preventDefault()
+  event.preventDefault()
 
-    if (!form.title || !form.owner || !form.startDate || !form.endDate) {
-      alert('작업명, 담당자, 시작일, 종료일을 모두 입력해주세요.')
-      return
-    }
-
-    if (new Date(form.startDate) > new Date(form.endDate)) {
-      alert('종료일은 시작일보다 늦거나 같아야 합니다.')
-      return
-    }
-
-    if (editingTaskId) {
-      setTasks
-       filteredTasks.map((task) => (
-          task.id === editingTaskId ? { ...task, ...form } : task
-        )
-      )
-
-      setEditingTaskId(null)
-    } else {
-      const newTask = {
-        id: Date.now(),
-        ...form,
-      }
-
-      setTasks([...tasks, newTask])
-    }
-
-    resetForm()
+  if (!form.title || !form.owner || !form.startDate || !form.endDate) {
+    alert('작업명, 담당자, 시작일, 종료일을 모두 입력해주세요.')
+    return
   }
+
+  if (new Date(form.startDate) > new Date(form.endDate)) {
+    alert('종료일은 시작일보다 늦거나 같아야 합니다.')
+    return
+  }
+
+  if (editingTaskId !== null) {
+    setTasks(
+      tasks.map((task) =>
+        task.id === editingTaskId ? { ...task, ...form } : task
+      )
+    )
+
+    setEditingTaskId(null)
+  } else {
+    const newTask = {
+      id: Date.now(),
+      ...form,
+    }
+
+    setTasks([...tasks, newTask])
+  }
+
+  resetForm()
+}
 
   function handleDelete(taskId) {
     setTasks(tasks.filter((task) => task.id !== taskId))
@@ -295,6 +299,13 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
 
         <div className="section-header">
           <h2>작업 목록</h2>
+          <div className="search-box">
+  <input
+    value={searchText}
+    onChange={(event) => setSearchText(event.target.value)}
+    placeholder="작업명 또는 담당자로 검색"
+  />
+</div>
           <div className="filter-buttons">
   {['전체', '예정', '진행중', '완료'].map((status) => (
     <button
