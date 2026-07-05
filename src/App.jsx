@@ -234,6 +234,13 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
     setEditingTaskId(null)
     resetForm()
   }
+  function handleResetFilters() {
+  setSearchText('')
+  setStatusFilter('전체')
+  setSortOption('기본순')
+  setOwnerFilter('전체 담당자')
+  setSelectedMonth('전체')
+}
 
   return (
     <main className="app">
@@ -379,6 +386,9 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
     </button>
   ))}
 </div>
+<button className="clear-filter-button" onClick={handleResetFilters}>
+  필터 초기화
+</button>
 
           <button className="reset-button" onClick={handleResetTasks}>
             기본 작업으로 초기화
