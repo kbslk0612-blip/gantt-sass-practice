@@ -97,8 +97,12 @@ function App() {
   })
 
   const [editingTaskId, setEditingTaskId] = useState(null)
-
-  const chartDates = createDateRange(tasks)
+  const [statusFilter, setStatusFilter] = useState('전체')
+const filteredTasks =
+  statusFilter === '전체'
+    ? tasks
+    : tasks.filter((task) => task.status === statusFilter)
+ const chartDates = createDateRange(filteredTasks)
 
 const totalTaskCount = tasks.length
 const todoTaskCount = tasks.filter((task) => task.status === '예정').length
@@ -142,8 +146,8 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     }
 
     if (editingTaskId) {
-      setTasks(
-        tasks.map((task) =>
+      setTasks
+       filteredTasks.map((task) => (
           task.id === editingTaskId ? { ...task, ...form } : task
         )
       )
@@ -291,6 +295,17 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
 
         <div className="section-header">
           <h2>작업 목록</h2>
+          <div className="filter-buttons">
+  {['전체', '예정', '진행중', '완료'].map((status) => (
+    <button
+      key={status}
+      className={statusFilter === status ? 'filter-button active' : 'filter-button'}
+      onClick={() => setStatusFilter(status)}
+    >
+      {status}
+    </button>
+  ))}
+</div>
 
           <button className="reset-button" onClick={handleResetTasks}>
             기본 작업으로 초기화

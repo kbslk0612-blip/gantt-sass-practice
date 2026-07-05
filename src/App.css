@@ -270,3 +270,26 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.filter-button {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filter-button.active {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  color: white;
+}
