@@ -99,14 +99,26 @@ function App() {
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [statusFilter, setStatusFilter] = useState('전체')
   const [searchText, setSearchText] = useState('')
+  const [selectedMonth, setSelectedMonth] = useState('전체')
+  const availableMonths = [
+  '전체',
+  ...new Set(tasks.map((task) => task.startDate.slice(0, 7))),
+]
 const filteredTasks = tasks.filter((task) => {
-  const matchesStatus = statusFilter === '전체' || task.status === statusFilter
-  const matchesSearch =
-    task.title.includes(searchText) || task.owner.includes(searchText)
+ const lowerSearchText = searchText.toLowerCase()
 
-  return matchesStatus && matchesSearch
+const matchesStatus = statusFilter === '전체' || task.status === statusFilter
+const matchesSearch =
+  task.title.toLowerCase().includes(lowerSearchText) ||
+  task.owner.toLowerCase().includes(lowerSearchText)
+
+return matchesStatus && matchesSearch
 })
- const chartDates = createDateRange(filteredTasks)
+const chartTasks =
+  selectedMonth === '전체'
+    ? filteredTasks
+    : filteredTasks.filter((task) => task.startDate.startsWith(selectedMonth))
+ const chartDates = createDateRange(chartTasks)
 
 const totalTaskCount = tasks.length
 const todoTaskCount = tasks.filter((task) => task.status === '예정').length
@@ -306,6 +318,7 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     placeholder="작업명 또는 담당자로 검색"
   />
 </div>
+
           <div className="filter-buttons">
   {['전체', '예정', '진행중', '완료'].map((status) => (
     <button
@@ -356,7 +369,17 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
         </div>
 
         <h2>간트차트</h2>
-
+<div className="month-buttons">
+  {availableMonths.map((month) => (
+    <button
+      key={month}
+      className={selectedMonth === month ? 'month-button active' : 'month-button'}
+      onClick={() => setSelectedMonth(month)}
+    >
+      {month}
+    </button>
+  ))}
+</div>
         <div className="gantt-chart" style={{ '--date-count': chartDates.length }}>
           <div className="gantt-header">
             <div className="gantt-task-name">작업</div>
@@ -368,7 +391,7 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
             ))}
           </div>
 
-          {tasks.map((task) => {
+          {chartTasks.map((task) => {
             const startIndex = getDateIndex(task.startDate, chartDates)
             const duration = getTaskDuration(task, chartDates)
 
