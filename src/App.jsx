@@ -101,19 +101,26 @@ function App() {
   const [searchText, setSearchText] = useState('')
   const [selectedMonth, setSelectedMonth] = useState('전체')
   const [sortOption, setSortOption] = useState('기본순')
+  const [ownerFilter, setOwnerFilter] = useState('전체 담당자')
   const availableMonths = [
   '전체',
   ...new Set(tasks.map((task) => task.startDate.slice(0, 7))),
 ]
+const availableOwners = [
+  '전체 담당자',
+  ...new Set(tasks.map((task) => task.owner)),
+]
 const filteredTasks = tasks.filter((task) => {
- const lowerSearchText = searchText.toLowerCase()
+  const lowerSearchText = searchText.toLowerCase()
 
-const matchesStatus = statusFilter === '전체' || task.status === statusFilter
-const matchesSearch =
-  task.title.toLowerCase().includes(lowerSearchText) ||
-  task.owner.toLowerCase().includes(lowerSearchText)
+  const matchesStatus = statusFilter === '전체' || task.status === statusFilter
+  const matchesOwner =
+    ownerFilter === '전체 담당자' || task.owner === ownerFilter
+  const matchesSearch =
+    task.title.toLowerCase().includes(lowerSearchText) ||
+    task.owner.toLowerCase().includes(lowerSearchText)
 
-return matchesStatus && matchesSearch
+  return matchesStatus && matchesOwner && matchesSearch
 })
 const sortedTasks = [...filteredTasks].sort((a, b) => {
   if (sortOption === '시작일 빠른순') {
@@ -358,6 +365,17 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
       onClick={() => setSortOption(option)}
     >
       {option}
+    </button>
+  ))}
+</div>
+<div className="owner-buttons">
+  {availableOwners.map((owner) => (
+    <button
+      key={owner}
+      className={ownerFilter === owner ? 'owner-button active' : 'owner-button'}
+      onClick={() => setOwnerFilter(owner)}
+    >
+      {owner}
     </button>
   ))}
 </div>

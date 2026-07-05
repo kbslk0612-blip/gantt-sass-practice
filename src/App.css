@@ -438,4 +438,26 @@ button {
   border-color: #0f172a;
   background: #0f172a;
   color: white;
+}.owner-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.owner-button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.owner-button.active {
+  border-color: #0369a1;
+  background: #0369a1;
+  color: white;
 }
