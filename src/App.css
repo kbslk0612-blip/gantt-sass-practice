@@ -416,3 +416,26 @@ button {
     justify-content: flex-start;
   }
 }
+.sort-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sort-button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sort-button.active {
+  border-color: #0f172a;
+  background: #0f172a;
+  color: white;
+}

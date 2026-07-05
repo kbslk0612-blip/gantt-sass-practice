@@ -100,6 +100,7 @@ function App() {
   const [statusFilter, setStatusFilter] = useState('전체')
   const [searchText, setSearchText] = useState('')
   const [selectedMonth, setSelectedMonth] = useState('전체')
+  const [sortOption, setSortOption] = useState('기본순')
   const availableMonths = [
   '전체',
   ...new Set(tasks.map((task) => task.startDate.slice(0, 7))),
@@ -114,10 +115,21 @@ const matchesSearch =
 
 return matchesStatus && matchesSearch
 })
+const sortedTasks = [...filteredTasks].sort((a, b) => {
+  if (sortOption === '시작일 빠른순') {
+    return new Date(a.startDate) - new Date(b.startDate)
+  }
+
+  if (sortOption === '종료일 빠른순') {
+    return new Date(a.endDate) - new Date(b.endDate)
+  }
+
+  return 0
+})
 const chartTasks =
   selectedMonth === '전체'
-    ? filteredTasks
-    : filteredTasks.filter((task) => task.startDate.startsWith(selectedMonth))
+    ? sortedTasks
+    : sortedTasks.filter((task) => task.startDate.startsWith(selectedMonth))
  const chartDates = createDateRange(chartTasks)
 
 const totalTaskCount = tasks.length
@@ -160,6 +172,7 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     alert('종료일은 시작일보다 늦거나 같아야 합니다.')
     return
   }
+  
   const startYear = Number(form.startDate.slice(0, 4))
 const endYear = Number(form.endDate.slice(0, 4))
 
@@ -337,6 +350,17 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
     </button>
   ))}
 </div>
+<div className="sort-buttons">
+  {['기본순', '시작일 빠른순', '종료일 빠른순'].map((option) => (
+    <button
+      key={option}
+      className={sortOption === option ? 'sort-button active' : 'sort-button'}
+      onClick={() => setSortOption(option)}
+    >
+      {option}
+    </button>
+  ))}
+</div>
 
           <button className="reset-button" onClick={handleResetTasks}>
             기본 작업으로 초기화
@@ -349,7 +373,7 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
       조건에 맞는 작업이 없습니다.
     </div>
   ) : (
-    filteredTasks.map((task) => (
+   sortedTasks.map((task) => (
       <article className="task-card" key={task.id}>
               <div>
                 <h3>{task.title}</h3>
