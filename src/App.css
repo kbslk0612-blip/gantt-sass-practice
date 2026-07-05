@@ -221,4 +221,20 @@ h1 {
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+}.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.reset-button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #111827;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }

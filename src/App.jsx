@@ -65,7 +65,7 @@ function getTaskDuration(task, chartDates) {
   return endIndex - startIndex + 1
 }
 
-function App() {function getStatusClass(status) {
+function getStatusClass(status) {
   if (status === '진행중') {
     return 'in-progress'
   }
@@ -76,6 +76,8 @@ function App() {function getStatusClass(status) {
 
   return 'todo'
 }
+
+function App() {
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('ganttTasks')
 
@@ -93,7 +95,9 @@ function App() {function getStatusClass(status) {
     endDate: '',
     status: '예정',
   })
-const [editingTaskId, setEditingTaskId] = useState(null)
+
+  const [editingTaskId, setEditingTaskId] = useState(null)
+
   const chartDates = createDateRange(tasks)
 
   useEffect(() => {
@@ -106,6 +110,16 @@ const [editingTaskId, setEditingTaskId] = useState(null)
     setForm({
       ...form,
       [name]: value,
+    })
+  }
+
+  function resetForm() {
+    setForm({
+      title: '',
+      owner: '',
+      startDate: '',
+      endDate: '',
+      status: '예정',
     })
   }
 
@@ -122,78 +136,52 @@ const [editingTaskId, setEditingTaskId] = useState(null)
       return
     }
 
-   if (editingTaskId) {
-  setTasks(
-    tasks.map((task) =>
-      task.id === editingTaskId ? { ...task, ...form } : task
-    )
-  )
+    if (editingTaskId) {
+      setTasks(
+        tasks.map((task) =>
+          task.id === editingTaskId ? { ...task, ...form } : task
+        )
+      )
 
-  setEditingTaskId(null)
-} else {
-  const newTask = {
-    id: Date.now(),
-    ...form,
-  }
+      setEditingTaskId(null)
+    } else {
+      const newTask = {
+        id: Date.now(),
+        ...form,
+      }
 
-  setTasks([...tasks, newTask])
-}
+      setTasks([...tasks, newTask])
+    }
 
-setForm({
-  title: '',
-  owner: '',
-  startDate: '',
-  endDate: '',
-  status: '예정',
-})
+    resetForm()
   }
 
   function handleDelete(taskId) {
     setTasks(tasks.filter((task) => task.id !== taskId))
-    function handleEdit(task) {
-  setEditingTaskId(task.id)
+  }
 
-  setForm({
-    title: task.title,
-    owner: task.owner,
-    startDate: task.startDate,
-    endDate: task.endDate,
-    status: task.status,
-  })
-}
+  function handleResetTasks() {
+    setTasks(initialTasks)
+    setEditingTaskId(null)
+    resetForm()
+  }
 
-  }function handleEdit(task) { function handleCancelEdit() {
-  setEditingTaskId(null)
+  function handleEdit(task) {
+    setEditingTaskId(task.id)
 
-  setForm({
-    title: '',
-    owner: '',
-    startDate: '',
-    endDate: '',
-    status: '예정',
-  })
-}
-  setEditingTaskId(task.id)
+    setForm({
+      title: task.title,
+      owner: task.owner,
+      startDate: task.startDate,
+      endDate: task.endDate,
+      status: task.status,
+    })
+  }
 
-  setForm({
-    title: task.title,
-    owner: task.owner,
-    startDate: task.startDate,
-    endDate: task.endDate,
-    status: task.status,
-  })
   function handleCancelEdit() {
-  setEditingTaskId(null)
-
-  setForm({
-    title: '',
-    owner: '',
-    startDate: '',
-    endDate: '',
-    status: '예정',
-  })
-}
-}
+    setEditingTaskId(null)
+    resetForm()
+  }
 
   return (
     <main className="app">
@@ -258,31 +246,30 @@ setForm({
             </select>
           </label>
 
-        <div className="form-actions">
-  <button type="submit">{editingTaskId ? '작업 수정' : '작업 추가'}</button>
+          <div className="form-actions">
+            <button type="submit">
+              {editingTaskId ? '작업 수정' : '작업 추가'}
+            </button>
 
-  {editingTaskId && (
-  <button
-  type="button"
-  className="cancel-button"
-  onClick={() => {
-    setEditingTaskId(null)
-    setForm({
-      title: '',
-      owner: '',
-      startDate: '',
-      endDate: '',
-      status: '예정',
-    })
-  }}
->
-  수정 취소
-</button>
-  )}
-</div>
+            {editingTaskId && (
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={handleCancelEdit}
+              >
+                수정 취소
+              </button>
+            )}
+          </div>
         </form>
 
-        <h2>작업 목록</h2>
+        <div className="section-header">
+          <h2>작업 목록</h2>
+
+          <button className="reset-button" onClick={handleResetTasks}>
+            기본 작업으로 초기화
+          </button>
+        </div>
 
         <div className="task-list">
           {tasks.map((task) => (
@@ -298,11 +285,18 @@ setForm({
                 <span>{task.endDate}</span>
               </div>
 
-              <span className={`status ${getStatusClass(task.status)}`}>{task.status}</span>
-<button className="edit-button" onClick={() => handleEdit(task)}>
-  수정
-</button>
-              <button className="delete-button" onClick={() => handleDelete(task.id)}>
+              <span className={`status ${getStatusClass(task.status)}`}>
+                {task.status}
+              </span>
+
+              <button className="edit-button" onClick={() => handleEdit(task)}>
+                수정
+              </button>
+
+              <button
+                className="delete-button"
+                onClick={() => handleDelete(task.id)}
+              >
                 삭제
               </button>
             </article>
