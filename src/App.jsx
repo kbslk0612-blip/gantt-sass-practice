@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { supabase } from './supabaseClient'
 
 const initialTasks = [
   {
@@ -78,15 +79,8 @@ function getStatusClass(status) {
 }
 
 function App() {
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('ganttTasks')
-
-    if (savedTasks) {
-      return JSON.parse(savedTasks)
-    }
-
-    return initialTasks
-  })
+  const [tasks, setTasks] = useState([])
+const [isLoading, setIsLoading] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -144,9 +138,37 @@ const todoTaskCount = tasks.filter((task) => task.status === '예정').length
 const inProgressTaskCount = tasks.filter((task) => task.status === '진행중').length
 const doneTaskCount = tasks.filter((task) => task.status === '완료').length
 
-  useEffect(() => {
-    localStorage.setItem('ganttTasks', JSON.stringify(tasks))
-  }, [tasks])
+useEffect(() => {
+  fetchTasks()
+}, [])
+
+async function fetchTasks() {
+  setIsLoading(true)
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    alert('작업을 불러오는 중 문제가 발생했습니다.')
+    console.error(error)
+    setIsLoading(false)
+    return
+  }
+
+  const formattedTasks = data.map((task) => ({
+    id: task.id,
+    title: task.title,
+    owner: task.owner,
+    startDate: task.start_date,
+    endDate: task.end_date,
+    status: task.status,
+  }))
+
+  setTasks(formattedTasks)
+  setIsLoading(false)
+}
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -167,7 +189,7 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     })
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
   event.preventDefault()
 
   if (!form.title || !form.owner || !form.startDate || !form.endDate) {
@@ -179,14 +201,19 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     alert('종료일은 시작일보다 늦거나 같아야 합니다.')
     return
   }
-  
-  const startYear = Number(form.startDate.slice(0, 4))
-const endYear = Number(form.endDate.slice(0, 4))
 
-if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
-  alert('날짜는 2020년부터 2035년 사이로 입력해주세요.')
-  return
-}
+  const startYear = Number(form.startDate.slice(0, 4))
+  const endYear = Number(form.endDate.slice(0, 4))
+
+  if (
+    startYear < 2020 ||
+    startYear > 2035 ||
+    endYear < 2020 ||
+    endYear > 2035
+  ) {
+    alert('날짜는 2020년부터 2035년 사이로 입력해주세요.')
+    return
+  }
 
   if (editingTaskId !== null) {
     setTasks(
@@ -197,9 +224,31 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
 
     setEditingTaskId(null)
   } else {
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        title: form.title,
+        owner: form.owner,
+        start_date: form.startDate,
+        end_date: form.endDate,
+        status: form.status,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      alert('작업을 저장하는 중 문제가 발생했습니다.')
+      console.error(error)
+      return
+    }
+
     const newTask = {
-      id: Date.now(),
-      ...form,
+      id: data.id,
+      title: data.title,
+      owner: data.owner,
+      startDate: data.start_date,
+      endDate: data.end_date,
+      status: data.status,
     }
 
     setTasks([...tasks, newTask])
@@ -207,7 +256,6 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
 
   resetForm()
 }
-
   function handleDelete(taskId) {
     setTasks(tasks.filter((task) => task.id !== taskId))
   }
@@ -394,7 +442,7 @@ if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
             기본 작업으로 초기화
           </button>
         </div>
-
+{isLoading && <div className="empty-message">작업을 불러오는 중입니다.</div>}
         <div className="task-list">
           {filteredTasks.length === 0 ? (
     <div className="empty-message">
