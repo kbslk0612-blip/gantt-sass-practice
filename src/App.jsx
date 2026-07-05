@@ -160,6 +160,13 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
     alert('종료일은 시작일보다 늦거나 같아야 합니다.')
     return
   }
+  const startYear = Number(form.startDate.slice(0, 4))
+const endYear = Number(form.endDate.slice(0, 4))
+
+if (startYear < 2020 || startYear > 2035 || endYear < 2020 || endYear > 2035) {
+  alert('날짜는 2020년부터 2035년 사이로 입력해주세요.')
+  return
+}
 
   if (editingTaskId !== null) {
     setTasks(
@@ -337,8 +344,13 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
         </div>
 
         <div className="task-list">
-          {tasks.map((task) => (
-            <article className="task-card" key={task.id}>
+          {filteredTasks.length === 0 ? (
+    <div className="empty-message">
+      조건에 맞는 작업이 없습니다.
+    </div>
+  ) : (
+    filteredTasks.map((task) => (
+      <article className="task-card" key={task.id}>
               <div>
                 <h3>{task.title}</h3>
                 <p>{task.owner}</p>
@@ -365,7 +377,8 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
                 삭제
               </button>
             </article>
-          ))}
+          ))
+  )}
         </div>
 
         <h2>간트차트</h2>
