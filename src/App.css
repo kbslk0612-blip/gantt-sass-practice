@@ -238,3 +238,35 @@ h1 {
   font-weight: 700;
   cursor: pointer;
 }
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-card span {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.summary-card strong {
+  color: #111827;
+  font-size: 32px;
+}
+
+@media (max-width: 720px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

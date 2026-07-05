@@ -100,6 +100,11 @@ function App() {
 
   const chartDates = createDateRange(tasks)
 
+const totalTaskCount = tasks.length
+const todoTaskCount = tasks.filter((task) => task.status === '예정').length
+const inProgressTaskCount = tasks.filter((task) => task.status === '진행중').length
+const doneTaskCount = tasks.filter((task) => task.status === '완료').length
+
   useEffect(() => {
     localStorage.setItem('ganttTasks', JSON.stringify(tasks))
   }, [tasks])
@@ -194,6 +199,27 @@ function App() {
       </section>
 
       <section className="task-section">
+        <div className="summary-grid">
+  <div className="summary-card">
+    <span>전체 작업</span>
+    <strong>{totalTaskCount}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>예정</span>
+    <strong>{todoTaskCount}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>진행중</span>
+    <strong>{inProgressTaskCount}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>완료</span>
+    <strong>{doneTaskCount}</strong>
+  </div>
+</div>
         <h2>작업 추가</h2>
 
         <form className="task-form" onSubmit={handleSubmit}>
