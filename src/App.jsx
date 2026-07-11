@@ -96,6 +96,8 @@ const [isLoading, setIsLoading] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState('전체')
   const [sortOption, setSortOption] = useState('기본순')
   const [ownerFilter, setOwnerFilter] = useState('전체 담당자')
+  const [userEmail, setUserEmail] = useState('')
+  const [loginEmail, setLoginEmail] = useState('')
   const availableMonths = [
   '전체',
   ...new Set(tasks.map((task) => task.startDate.slice(0, 7))),
@@ -140,7 +142,26 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
 
 useEffect(() => {
   fetchTasks()
+  checkUser()
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUserEmail(session?.user?.email || '')
+  })
+
+  return () => {
+    subscription.unsubscribe()
+  }
 }, [])
+
+async function checkUser() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  setUserEmail(user?.email || '')
+}
 
 async function fetchTasks() {
   setIsLoading(true)
@@ -169,6 +190,32 @@ async function fetchTasks() {
   setTasks(formattedTasks)
   setIsLoading(false)
 }
+
+async function handleLogin(event) {
+  event.preventDefault()
+
+  if (!loginEmail) {
+    alert('이메일을 입력해주세요.')
+    return
+  }
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email: loginEmail,
+    options: {
+      emailRedirectTo: window.location.origin,
+    },
+  })
+
+  if (error) {
+    alert('로그인 링크를 보내는 중 문제가 발생했습니다.')
+    console.error(error)
+    return
+  }
+
+  alert('이메일로 로그인 링크를 보냈습니다.')
+}
+
+
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -385,6 +432,23 @@ async function fetchTasks() {
       </section>
 
       <section className="task-section">
+      <div className="auth-box">
+  {userEmail ? (
+    <p>
+      로그인됨: <strong>{userEmail}</strong>
+    </p>
+  ) : (
+    <form onSubmit={handleLogin}>
+      <input
+        type="email"
+        value={loginEmail}
+        onChange={(event) => setLoginEmail(event.target.value)}
+        placeholder="이메일 입력"
+      />
+      <button type="submit">로그인 링크 받기</button>
+    </form>
+  )}
+</div>
         <div className="summary-grid">
   <div className="summary-card">
     <span>전체 작업</span>
