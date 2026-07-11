@@ -215,15 +215,43 @@ async function fetchTasks() {
     return
   }
 
-  if (editingTaskId !== null) {
-    setTasks(
-      tasks.map((task) =>
-        task.id === editingTaskId ? { ...task, ...form } : task
-      )
-    )
+ if (editingTaskId !== null) {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({
+      title: form.title,
+      owner: form.owner,
+      start_date: form.startDate,
+      end_date: form.endDate,
+      status: form.status,
+    })
+    .eq('id', editingTaskId)
+    .select()
+    .single()
 
-    setEditingTaskId(null)
-  } else {
+  if (error) {
+    alert('작업을 수정하는 중 문제가 발생했습니다.')
+    console.error(error)
+    return
+  }
+
+  const updatedTask = {
+    id: data.id,
+    title: data.title,
+    owner: data.owner,
+    startDate: data.start_date,
+    endDate: data.end_date,
+    status: data.status,
+  }
+
+  setTasks(
+    tasks.map((task) =>
+      task.id === editingTaskId ? updatedTask : task
+    )
+  )
+
+  setEditingTaskId(null)
+} else {
     const { data, error } = await supabase
       .from('tasks')
       .insert({
@@ -256,9 +284,20 @@ async function fetchTasks() {
 
   resetForm()
 }
-  function handleDelete(taskId) {
-    setTasks(tasks.filter((task) => task.id !== taskId))
+ async function handleDelete(taskId) {
+  const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', taskId)
+
+  if (error) {
+    alert('작업을 삭제하는 중 문제가 발생했습니다.')
+    console.error(error)
+    return
   }
+
+  setTasks(tasks.filter((task) => task.id !== taskId))
+}
 
   function handleResetTasks() {
     setTasks(initialTasks)
