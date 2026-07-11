@@ -98,6 +98,7 @@ const [isLoading, setIsLoading] = useState(false)
   const [ownerFilter, setOwnerFilter] = useState('전체 담당자')
   const [userEmail, setUserEmail] = useState('')
   const [loginEmail, setLoginEmail] = useState('')
+  const [isSendingLoginLink, setIsSendingLoginLink] = useState(false)
   const availableMonths = [
   '전체',
   ...new Set(tasks.map((task) => task.startDate.slice(0, 7))),
@@ -142,7 +143,7 @@ const doneTaskCount = tasks.filter((task) => task.status === '완료').length
 
 useEffect(() => {
   fetchTasks()
-  checkUser()
+  checkSession()
 
   const {
     data: { subscription },
@@ -155,12 +156,12 @@ useEffect(() => {
   }
 }, [])
 
-async function checkUser() {
+async function checkSession() {
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  setUserEmail(user?.email || '')
+  setUserEmail(session?.user?.email || '')
 }
 
 async function fetchTasks() {
@@ -199,6 +200,8 @@ async function handleLogin(event) {
     return
   }
 
+  setIsSendingLoginLink(true)
+
   const { error } = await supabase.auth.signInWithOtp({
     email: loginEmail,
     options: {
@@ -206,7 +209,14 @@ async function handleLogin(event) {
     },
   })
 
+  setIsSendingLoginLink(false)
+
   if (error) {
+    if (error.message.includes('rate limit')) {
+      alert('로그인 링크 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
     alert('로그인 링크를 보내는 중 문제가 발생했습니다.')
     console.error(error)
     return
@@ -214,7 +224,17 @@ async function handleLogin(event) {
 
   alert('이메일로 로그인 링크를 보냈습니다.')
 }
+async function handleLogout() {
+  const { error } = await supabase.auth.signOut()
 
+  if (error) {
+    alert('로그아웃 중 문제가 발생했습니다.')
+    console.error(error)
+    return
+  }
+
+  setUserEmail('')
+}
 
 
   function handleChange(event) {
@@ -434,41 +454,59 @@ async function handleLogin(event) {
       <section className="task-section">
       <div className="auth-box">
   {userEmail ? (
-    <p>
-      로그인됨: <strong>{userEmail}</strong>
-    </p>
+    <div className="auth-user">
+      <div>
+        <span className="auth-label">로그인됨</span>
+        <strong>{userEmail}</strong>
+      </div>
+
+      <button type="button" onClick={handleLogout}>
+        로그아웃
+      </button>
+    </div>
   ) : (
-    <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        value={loginEmail}
-        onChange={(event) => setLoginEmail(event.target.value)}
-        placeholder="이메일 입력"
-      />
-      <button type="submit">로그인 링크 받기</button>
-    </form>
+    <div className="auth-login">
+      <form className="auth-form" onSubmit={handleLogin}>
+        <input
+          type="email"
+          value={loginEmail}
+          onChange={(event) => setLoginEmail(event.target.value)}
+          placeholder="이메일 입력"
+        />
+
+        <button type="submit" disabled={isSendingLoginLink}>
+          {isSendingLoginLink ? '보내는 중...' : '로그인 링크 받기'}
+        </button>
+      </form>
+
+      <button
+        type="button"
+        className="session-check-button"
+        onClick={async () => {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession()
+
+          if (session?.user?.email) {
+            setUserEmail(session.user.email)
+            alert('로그인 상태를 확인했습니다.')
+          } else {
+            alert('현재 로그인된 세션이 없습니다.')
+          }
+        }}
+      >
+        로그인 상태 다시 확인
+      </button>
+
+      <button
+        type="button"
+        className="session-check-button"
+        onClick={() => setUserEmail('test@example.com')}
+      >
+        개발용 로그인 화면 확인
+      </button>
+    </div>
   )}
-</div>
-        <div className="summary-grid">
-  <div className="summary-card">
-    <span>전체 작업</span>
-    <strong>{totalTaskCount}</strong>
-  </div>
-
-  <div className="summary-card">
-    <span>예정</span>
-    <strong>{todoTaskCount}</strong>
-  </div>
-
-  <div className="summary-card">
-    <span>진행중</span>
-    <strong>{inProgressTaskCount}</strong>
-  </div>
-
-  <div className="summary-card">
-    <span>완료</span>
-    <strong>{doneTaskCount}</strong>
-  </div>
 </div>
         <h2>작업 추가</h2>
 
