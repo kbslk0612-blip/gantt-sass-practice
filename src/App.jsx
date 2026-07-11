@@ -299,11 +299,56 @@ async function fetchTasks() {
   setTasks(tasks.filter((task) => task.id !== taskId))
 }
 
-  function handleResetTasks() {
-    setTasks(initialTasks)
-    setEditingTaskId(null)
-    resetForm()
+ async function handleResetTasks() {
+  const confirmed = confirm('모든 작업을 기본 작업으로 초기화할까요?')
+
+  if (!confirmed) {
+    return
   }
+
+  const { error: deleteError } = await supabase
+    .from('tasks')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000')
+
+  if (deleteError) {
+    alert('기존 작업을 삭제하는 중 문제가 발생했습니다.')
+    console.error(deleteError)
+    return
+  }
+
+  const tasksToInsert = initialTasks.map((task) => ({
+    title: task.title,
+    owner: task.owner,
+    start_date: task.startDate,
+    end_date: task.endDate,
+    status: task.status,
+  }))
+
+  const { data, error: insertError } = await supabase
+    .from('tasks')
+    .insert(tasksToInsert)
+    .select()
+
+  if (insertError) {
+    alert('기본 작업을 다시 만드는 중 문제가 발생했습니다.')
+    console.error(insertError)
+    return
+  }
+
+  const formattedTasks = data.map((task) => ({
+    id: task.id,
+    title: task.title,
+    owner: task.owner,
+    startDate: task.start_date,
+    endDate: task.end_date,
+    status: task.status,
+  }))
+
+  setTasks(formattedTasks)
+  setEditingTaskId(null)
+  resetForm()
+}
 
   function handleEdit(task) {
     setEditingTaskId(task.id)
